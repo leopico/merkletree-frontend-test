@@ -15,17 +15,27 @@ function App() {
   const [addresses, setAddresses] = useState([]); //store data
   const [newAddresses, setNewAddresses] = useState(""); // Store the newly entered addresses from input
 
-  useEffect(() => {
-    async function fetchAddresses() {
-      try {
-        const response = await axios.get(`${hostServer}/api/addresses`);
-        setWhitelistedAddresses(response.data);
-      } catch (error) {
-        console.error("Error fetching or generating Excel:", error);
-      }
+  const fetchAddresses = async () => {
+    try {
+      const response = await axios.get(`${hostServer}/api/addresses`);
+      setWhitelistedAddresses(response.data);
+    } catch (error) {
+      console.error("Error fetching or generating Excel:", error);
     }
-    fetchAddresses();
-  }, [whitelistedAddresses]);
+  };
+
+  useEffect(() => {
+    // Set up a timer to refresh data every 60 seconds
+    const refreshInterval = setInterval(() => {
+      console.log("component is rendering");
+      fetchAddresses();
+    }, 60000);
+
+    // Clean up the timer when the component unmounts
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, []);
 
   const readFile = async () => {
     try {
